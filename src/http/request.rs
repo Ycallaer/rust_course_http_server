@@ -6,6 +6,8 @@ use std::fmt::Display;
 use std::fmt::Debug;
 use std::fmt::Result as FmtResult;
 use std::fmt::Formatter;
+use std::str;
+use std::str::Utf8Error;
 
 
 pub struct Request {
@@ -21,9 +23,20 @@ pub struct Request {
 impl TryFrom<&[u8]> for Request {
     type Error = ParseError;
 
-    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {    
+    fn try_from(buf: &[u8]) -> Result<Self, Self::Error> {
+        //the question mark is shorthand for the match operator    
+        let request = str::from_utf8(buf)?;
         unimplemented!()
     }
+}
+
+fn get_next_word(request: &str) -> Option<(&str,&str)>{
+    for (i,c) in request.chars().enumerate(){
+        if c ==' '{
+            return Some((&request[..i],&request[i+1..]))
+        }
+    }
+    None
 }
 
 pub enum ParseError {
@@ -41,6 +54,12 @@ impl ParseError {
             Self::InvalidProtocol => "Invalid Protocol",
             Self::InvalidMethod => "Invalid Method",
         }
+    }
+}
+
+impl From<Utf8Error> for ParseError {
+    fn from(_: Utf8Error) -> Self {
+        Self::InvalidEncoding
     }
 }
 
