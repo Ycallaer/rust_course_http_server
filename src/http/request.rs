@@ -11,8 +11,10 @@ use std::str;
 use std::str::Utf8Error;
 use super::{QueryString};
 
-//lifetime generics. Current lifetime of request is equal to the lifetime of the buffer in server.rs
+
+#[derive(Debug)]
 pub struct Request<'buf> {
+    //lifetime generics. Current lifetime of request is equal to the lifetime of the buffer in server.rs
     path: &'buf str,
     query_string: Option<QueryString<'buf>>,
     method: Method,

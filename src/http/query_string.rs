@@ -1,10 +1,12 @@
 use std::{collections::HashMap};
 
 //a=1&b=2&c&d=&e===&d=7&d=abc   -> structure of querystring
+#[derive(Debug)]
 pub struct QueryString<'buf> {
     data: HashMap<&'buf str, Value<'buf>>
 }
 
+#[derive(Debug)]
 pub enum Value<'buf> {
     Single(&'buf str),
     Multiple(Vec<&'buf str>) //Vec is an heap allocating array
