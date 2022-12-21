@@ -1,3 +1,5 @@
+#![allow(dead_code)] //disables compiler telling us certain code is not used
+
 use server::Server;
 use http::Request;
 use http::Method;

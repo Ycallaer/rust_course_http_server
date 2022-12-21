@@ -9,11 +9,12 @@ use std::fmt::Result as FmtResult;
 use std::fmt::Formatter;
 use std::str;
 use std::str::Utf8Error;
+use super::{QueryString};
 
 //lifetime generics. Current lifetime of request is equal to the lifetime of the buffer in server.rs
 pub struct Request<'buf> {
     path: &'buf str,
-    query_string: Option<&'buf str>,
+    query_string: Option<QueryString<'buf>>,
     method: Method,
 }
 
@@ -42,7 +43,7 @@ impl<'buf>  TryFrom<&'buf [u8]> for Request<'buf>  {
 
         //match on the variance we only care about , so None is not needed in this case
         if let Some(i) = path.find("?"){
-            query_string = Some(&path[i+1..]);
+            query_string = Some(QueryString::from(&path[i+1..]));
             path = &path[..i];
         }
         
