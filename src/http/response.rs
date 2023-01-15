@@ -11,8 +11,9 @@ impl Response {
     pub fn new (status_code: StatusCode, body: Option<String>) -> Self {
         Response { status_code, body }
     }
-
-    pub fn send (&self, stream: &mut TcpStream) -> IoResult<()>{
+    //dyn keyword-> Dynamic dispatch (resolved at runtime)
+    //impl keyword-> Static dispatchh (resolved at compile time), will slow down compilation
+    pub fn send (&self, stream: &mut impl Write) -> IoResult<()>{
         let body = match &self.body {
             Some(b) => b,
             None => ""

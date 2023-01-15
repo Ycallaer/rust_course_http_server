@@ -1,8 +1,16 @@
 use std::{net::TcpListener, io::Read, io::Write};
+use crate::http::ParseError;
 use crate::http::{Request, Response, StatusCode}; //crate keyword goes to the root
 use std::convert::TryFrom;
 use std::convert::TryInto;
 
+pub trait Handler {
+    fn handle_request(&mut self, request: &Request) -> Response;
+    fn handle_bad_request(&mut self, e: &ParseError) -> Response {
+        println!("Failed to parse the request: {}",e);
+        Response::new(StatusCode::BadRequest, None)
+    }
+}
 pub struct Server{
     addr: String,
 }
@@ -14,7 +22,7 @@ impl Server{
     }
 
     //methods use the first special param self
-    pub fn run(self){
+    pub fn run(self, mut handler: impl Handler){
         println!("The server is running on {}",self.addr);
 
         let listener = TcpListener::bind(&self.addr).unwrap();
@@ -28,12 +36,11 @@ impl Server{
                         Ok(_) => {
                             println!("Received from request: {} ", String::from_utf8_lossy(&buffer));
                             let response = match Request::try_from(&buffer[..] ) {
-                                Ok(Request) => {
-                                    Response::new(StatusCode::Ok, Some("<h1>It works</h1>".to_string()))
+                                Ok(request) => {
+                                    handler.handle_request(&request)
                                 }
                                 Err(e) => {
-                                    println!("Failed to parse a request {}",e);
-                                    Response::new(StatusCode::BadRequest, None)
+                                    handler.handle_bad_request(&e)
                                 }
                             };
                             if let Err(e) = response.send(&mut stream){
